@@ -1,0 +1,1 @@
+SVM Metrics : (array([ 1.        ,  0.99791477]), array([ 0.2,  1. ]), array([ 0.33333333,  0.99895629]), array([  20, 7657], dtype=int64))
