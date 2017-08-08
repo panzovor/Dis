@@ -1,6 +1,7 @@
 import src.features as features
 import os
 import src.train_py as trainer
+import src.analyzeresult as analyresult
 import src.preprocess as preprocess
 
 def prepare_data():
@@ -20,7 +21,8 @@ def prepare_data():
     print("featurelize done")
 
     # features.arff(new_only=True)
-    # print("arff done")
+    # print("arff done")            name = name[:name.index(".")]
+
 
 def disambugation():
     train_root = "../res/feature_data/train/"
@@ -28,13 +30,15 @@ def disambugation():
     model_save_root = "../res/model/"
     filelist = os.listdir(train_root)
     models = trainer.models
+    fail = []
     for name in filelist:
         train_file = train_root+name
         test_file = test_root+name
         if "." in name:
             name = name[:name.index(".")]
         # print("training: using trainfile( ",train_file,"),testfile( ",test_file,")")
-        fail =[]
+
+        print(name)
         for modelname in models.keys():
             # print(modelname)
             try:
@@ -43,14 +47,18 @@ def disambugation():
                 # print("      saving result in path:( ", model_save_root + name + "/" + modelname + ".txt", " )")
             except:
                 fail.append([name,modelname])
-        for var in fail:
-            print(var)
+    for var in fail:
+        print(var)
+
+def analyze_result():
+    data = analyresult.load_all_result()
+    res = analyresult.select_best(data)
 
 if __name__ =="__main__":
 
-    # preprocess.combine()
-    # prepare_data()
+    preprocess.combine()
+    prepare_data()
     disambugation()
-   # analyze_result()
+    analyze_result()
 
 
