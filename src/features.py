@@ -608,7 +608,7 @@ probability = single_class_probability_feature()
 
 parameter = {"probability":True,"textrank":False}
 
-def get_features(key,sentences,seperate_words = True):
+def get_features(key,sentences):
 
     cfeature = character.get_features(key,sentences)
     # tfidffeature = tfidf.get_features(key,sentences,seperate_words=seperate_words)
@@ -657,14 +657,17 @@ def featurelize_data(root,save_root,new_only = False):
         filepath = root+file
         data = tools.read_csv_format(filepath,collum=6)
         print(file)
+        # patch = int(len(data) / 10) if int(len(data))/10 > 0 else 1
         for line in data:
             i += 1
-            if i% int(len(data)/10) == 0:
-                sys.stdout.write("*")
-                sys.stdout.flush()
-            tmp = [line[0]+"_"+line[2]]+get_features(line[0],line[1])+[str(max(0,min(1,int(line[-1]))))]
+            # if i% patch == 0:
+            #     sys.stdout.write("*")
+            #     sys.stdout.flush()
+            tmp = [line[0]+"_"+line[2]]
+            tmp.extend(get_features(line[0],line[1]))
+            tmp.append(str(max(0,min(1,int(line[-1])))))
             features.append(tmp)
-        print()
+        # print()
         tools.save_csv(features,save_root+file)
 
 def demo():
@@ -687,9 +690,6 @@ def demo():
     print(test_sen3)
     print(feat3)
 
-
-
-
 def train(new_only =False):
     probability.new_only = new_only
     textrank.new_only = new_only
@@ -704,7 +704,6 @@ def train(new_only =False):
         if parameter["textrank"] :
             textrank.train(name[:-4],trainroot+name)
             print("textrank done")
-
 
 def featurelize(new_only = False):
     trainroot = "../res/train_labeldata/"
@@ -736,7 +735,6 @@ def arff(new_only=False):
 
     preprocess.csv2arff_all(save_train_root,save_train_arff_root,new_only)
     preprocess.csv2arff_all(save_test_root,save_test_arff_root,new_only)
-
 
 def seperate(new_only = True):
     root = "../res/labeldata/"

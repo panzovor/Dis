@@ -3,7 +3,10 @@ import jieba
 import csv
 import jieba.posseg as pog
 import os
+import xlrd
+import chardet
 
+xlrd.Book.encoding="utf-8"
 encoding = "GB2312"
 csv.field_size_limit(2147483647)
 def read_csv(filepath):
@@ -15,9 +18,16 @@ def read_csv(filepath):
         csvfile =  csv.reader(file)
         # try:
         for row in csvfile:
-            if name in row[-1]:
-                res.append(row)
+            # if name in row[-1]:
+            res.append(row)
     return res,name
+
+def create_dir_if_not_exist(filepath):
+    root = filepath[:filepath.rindex("/")+1]
+    # print("dd",root)
+    if not os.path.exists(root):
+        # print(root)
+        os.makedirs(root)
 
 def read_csv_format(filepath,collum = 0):
     res =[]
@@ -31,6 +41,31 @@ def read_csv_format(filepath,collum = 0):
             if collum<=0 or len(row) == collum:
                 res.append(row)
     return res
+
+def open_xls(filepath):
+    data = xlrd.open_workbook(filepath)
+    return data
+
+def read_xls_solidcollum(filepath,collum,skip_first = True,sheet_no = 0):
+    if collum>0:
+        res = []
+        data = open_xls(filepath)
+        table = data.sheets()[sheet_no]
+        row_num = table.nrows
+        start_row = 1 if skip_first else 0
+        for i in range(start_row,row_num):
+            row = table.row_values(i)
+            # for var in row:
+                # print(var,var.encode("utf-8"))
+                # print(var,var.encode("gbk"))
+                # print(var,var.encode("gb2312"))
+                # input()
+            res.append([var for var in  row[:collum]])
+
+        return res
+    else:
+        return None
+
 
 
 def read_multi_csv(filelist):
@@ -59,7 +94,7 @@ def read(filepath,skip_fisrt=False):
 
 def read(filepath,encoding = "utf-8"):
 
-    with open(filepath,encoding=encoding) as file:
+    with open(filepath,encoding=encoding,errors="ignore") as file:
         return file.read()
 
 def read_txt(filepath,collum_num = 3,encoding = "utf-8",seperate = ","):
@@ -102,7 +137,7 @@ def save_sen_csv(data,filepath):
                 csvwriter.writerow([key]+line)
 
 def save_csv(data,filepath):
-    with open(filepath, mode="w", newline='') as file:
+    with open(filepath, mode="w", newline='',errors='ignore') as file:
         csvwriter = csv.writer(file)
         for line in data:
             csvwriter.writerow(line)

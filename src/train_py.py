@@ -16,13 +16,13 @@ import src.tools as tools
 
 def load_data(data_file):
     data = tools.read_csv_format(data_file)
-    data = data[1:]
-    def filter(var):
-        return var[2:]
-    data = list(map(filter,data))
+    # def filter(var):
+    #     return var[1:]
+    # data = list(map(filter,data))
     x,y = [],[]
     for var in data:
-        x.append([float(var) for var in var[:-1]])
+        x.append([float(var[i]) for i in range(1,len(var)-1)])
+        # x.append([float(var) for var in var[:-1]])
         y.append(int(var[-1]))
     return x,y
 
@@ -114,6 +114,8 @@ def nn_classify(X_train,y_train,X_test,y_test):
     return clf,report,confuse
 
 def save_model(cls,save_path):
+
+
     joblib.dump(cls,save_path,compress=3)
 
 def load_model(model_path):
@@ -137,8 +139,12 @@ def train_model(train_file,test_file,model_name,model_save_path=None,res_save_pa
         _model = model_name
     clf,report,confuse = _model(train_x,train_y,test_x,test_y)
     if model_save_path!=None:
+        tools.create_dir_if_not_exist(model_save_path)
         save_model(clf,model_save_path)
-    string = str(confuse[0][0])+","+str(confuse[0][1])+","+str(confuse[1][0])+","+str(confuse[1][1])+ "\n"
+    if len(confuse) == 1:
+        string = "0,0,0,"+str(confuse[0][0])+"\n"
+    else:
+        string = str(confuse[0][0])+","+str(confuse[0][1])+","+str(confuse[1][0])+","+str(confuse[1][1])+ "\n"
     string2 = ""
     for var in report:
         string2+= ','.join(list(map(str,var)))+'\n'
@@ -164,10 +170,12 @@ if __name__ == "__main__":
     train_files = "../res/feature_data/train/东方园林.csv"
     test_files = "../res/feature_data/test/东方园林.csv"
     model_path = "../res/model/东方园林/randomforest.m"
-    result = train_model(train_file=train_files,test_file=test_files,model_name="randomforest",model_save_path=model_path)
-    print(result)
+    # result = train_model(train_file=train_files,test_file=test_files,model_name="randomforest",model_save_path=model_path)
+    # print(result)
     x_test,y_test = load_data(test_files)
+    print(x_test[0])
     pre_y_test = predict(model_path,x_test)
+    print(pre_y_test)
     report,confuse = analyse_predict_result(y_test,pre_y_test)
 
 
