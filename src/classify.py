@@ -26,8 +26,13 @@ def classify(text):
                         result[sen] = []
                     result[sen].append(key)
 
-    for sen in result:
-        print(sen,result[sen])
+    feature_all = feature.get_features("all",sen)
+    predict = models["all"].predict(feature_all)
+    if str(predict[0]) == "1":
+        result[sen].append("all")
+
+    # for sen in result:
+    #     print(sen,result[sen])
     return result
 
 if __name__ == "__main__":
